@@ -2,9 +2,12 @@
 
 import axios from "axios";
 import Head from "next/head";
+import Link from "next/link";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
 const SignIn = () => {
+  const dispatch = useDispatch();
   const [userCredetials, setUserCredetials] = useState({
     username: "",
     password: "",
@@ -27,6 +30,7 @@ const SignIn = () => {
     const endpoint = "http://localhost:8000/sign_up/";
     axios.post(endpoint, { user: userCredetials }).then((res) => {
       const responseData = res.data;
+      // if (responseData.success) dispatch();
       console.log("signup res", responseData);
     });
   };
@@ -38,11 +42,11 @@ const SignIn = () => {
       </Head>
       <div>
         <form className="" onSubmit={signIn}>
-          <div class="gap-6 mb-6">
+          <div className="gap-6 mb-6">
             <div>
               <label
-                for="username"
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                htmlFor="username"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 Username
               </label>
@@ -52,18 +56,18 @@ const SignIn = () => {
                 name="username"
                 value={userCredetials.username}
                 onChange={changeUserCreds}
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter username..."
                 required
               />
             </div>
           </div>
 
-          <div class="grid gap-6 mb-6 md:grid-cols-2">
+          <div className="grid gap-6 mb-6 md:grid-cols-2">
             <div>
               <label
-                for="firstName"
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                htmlFor="firstName"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 First name
               </label>
@@ -73,15 +77,15 @@ const SignIn = () => {
                 name="firstName"
                 value={userCredetials.firstName}
                 onChange={changeUserCreds}
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter first name..."
                 required
               />
             </div>
             <div>
               <label
-                for="lastName"
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                htmlFor="lastName"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 Last name
               </label>
@@ -91,7 +95,7 @@ const SignIn = () => {
                 name="lastName"
                 value={userCredetials.lastName}
                 onChange={changeUserCreds}
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter last name..."
                 required
               />
@@ -100,8 +104,8 @@ const SignIn = () => {
           <div className="mb-6">
             <div>
               <label
-                for="phone"
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                htmlFor="phone"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 Phone number
               </label>
@@ -111,17 +115,17 @@ const SignIn = () => {
                 value={userCredetials.phone}
                 name="phone"
                 onChange={changeUserCreds}
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="123-45-678"
                 // pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
                 required
               />
             </div>
           </div>
-          <div class="mb-6">
+          <div className="mb-6">
             <label
-              for="email"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="email"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Email address
             </label>
@@ -131,15 +135,15 @@ const SignIn = () => {
               name="email"
               value={userCredetials.email}
               onChange={changeUserCreds}
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="john.doe@company.com"
               required
             />
           </div>
-          <div class="mb-6">
+          <div className="mb-6">
             <label
-              for="password"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="password"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Password
             </label>
@@ -149,15 +153,15 @@ const SignIn = () => {
               name="password"
               value={userCredetials.password}
               onChange={changeUserCreds}
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="•••••••••"
               required
             />
           </div>
-          <div class="mb-6">
+          <div className="mb-6">
             <label
-              for="confirmPassword"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="confirmPassword"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Confirm password
             </label>
@@ -167,18 +171,27 @@ const SignIn = () => {
               name="confirmPassword"
               value={userCredetials.confirmPassword}
               onChange={changeUserCreds}
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="•••••••••"
               required
             />
           </div>
           <button
             type="submit"
-            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             Submit
           </button>
         </form>
+        <div className="flex justify-center items-center">
+          <p className="block mt-5 text-sm">
+            Already have an account?{" "}
+            <Link className="text-blue-500 hover:text-blue-700" href={"/auth"}>
+              Sign in here
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     </div>
   );
