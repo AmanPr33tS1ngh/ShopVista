@@ -1,13 +1,16 @@
 "use client";
 import { host_port } from "@/env";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const Product = () => {
+  const router = useRouter();
   const [product, setProduct] = useState({
     name: "",
     price: null,
     image: "",
+    discountAmount: null,
   });
   const changeProduct = (e) => {
     setProduct({
@@ -20,6 +23,7 @@ const Product = () => {
     const endpoint = `${host_port}/products/`;
     axios.post(endpoint, { product: product }).then((res) => {
       const responseData = res.data;
+      if (responseData.success) router.push("/");
       console.log("res", responseData);
     });
   };
@@ -47,7 +51,6 @@ const Product = () => {
             />
           </div>
         </div>
-
         <div className="mb-6">
           <label
             htmlFor="Price"
@@ -66,7 +69,6 @@ const Product = () => {
             required
           />
         </div>
-
         <div className="mb-6">
           <label
             htmlFor="Price"
@@ -82,6 +84,24 @@ const Product = () => {
             onChange={changeProduct}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Enter image url..."
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="Price"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Discount Amount
+          </label>
+          <input
+            type="text"
+            id="discountAmount"
+            name="discountAmount"
+            value={product.discountAmount}
+            onChange={changeProduct}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Enter discount amount..."
             required
           />
         </div>

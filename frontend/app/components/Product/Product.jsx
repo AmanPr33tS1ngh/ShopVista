@@ -1,16 +1,17 @@
+import { host_port } from "@/env";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const Product = (product) => {
   return (
-    <div className="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
+    <div className="relative col-span-1 flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md">
       <div className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl">
         <Image
           className="object-cover"
           width={100}
           height={100}
-          src={product.image}
+          src={`${host_port}/${product.image}`}
           alt="product image"
         />
         <span className="absolute top-0 left-0 m-2 rounded-full bg-black px-2 text-center text-sm font-medium text-white">
@@ -28,7 +29,9 @@ const Product = (product) => {
             <span className="text-3xl font-bold text-slate-900">
               ${product.price}
             </span>
-            <span className="text-sm text-slate-900 line-through">$699</span>
+            <span className="text-sm text-slate-900 line-through">
+              ${product.discountAmount}
+            </span>
           </p>
           <div className="flex items-center">
             <svg

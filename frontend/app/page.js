@@ -43,13 +43,11 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>
-        {console.log("prooododod", products)}
-        {products.map((product) => (
-          <Product {...product} />
-        ))}
-      </div>
+    <main className="grid grid-cols-3 gap-3 gap-y-8 items-center justify-between p-5">
+      {console.log("prooododod", products)}
+      {products.map((product) => (
+        <Product {...product} />
+      ))}
     </main>
   );
 }

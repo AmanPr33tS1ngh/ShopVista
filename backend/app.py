@@ -41,6 +41,7 @@ class Product(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
     price = db.Column(db.Integer)
     image = db.Column(db.String(255))
+    discountAmount = db.Column(db.Integer)
     
     def __repr__(self) -> str:
         return f'{self.name} - {self.price}'
@@ -51,6 +52,7 @@ class Product(db.Model):
             'name': self.name,
             'price': self.price,
             'image': self.image,
+            'discountImage': self.discountAmount,
         }
 
 
