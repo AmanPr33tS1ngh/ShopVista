@@ -5,9 +5,14 @@ import Head from "next/head";
 import React, { useState } from "react";
 import Link from "next/link";
 import { AUTHENTICATE } from "../redux/actionTypes/actionTypes";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 const SignIn = () => {
+  const selector = useSelector((state) => state);
+
+  const router = useRouter();
+  console.log("selectorrrrrrr", selector);
   const dispatch = useDispatch();
   const [userCredetials, setUserCredetials] = useState({
     username: "",
@@ -36,10 +41,10 @@ const SignIn = () => {
           "access_token",
           JSON.stringify(responseData.access_token)
         );
+        router.push("/");
       }
     });
   };
-
   return (
     <div className="h-screen flex justify-center items-center">
       <Head>
