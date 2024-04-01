@@ -1,173 +1,178 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-import os
-from sqlalchemy import ForeignKey
-from flask_sqlalchemy import SQLAlchemy
+from flask_pymongo import PyMongo
+import pandas as pd
+from bson import ObjectId
 
 app = Flask(__name__)
 CORS(app)
-app.config['JWT_SECRET_KEY'] = os.urandom(24)
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
 jwt = JWTManager(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop_vista.db"
-
-db = SQLAlchemy()
-db.init_app(app)
-    
-# Models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    phone = db.Column(db.String(20))
-    firstName = db.Column(db.String(50))
-    lastName = db.Column(db.String(50))
-
-    def __repr__(self) -> str:
-        return self.usename
-
-    def serialize(self) -> dict:
-        return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
-            'phone': self.phone,
-            'firstName': self.firstName,
-            'lastName': self.lastName,
-        }
-        
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
-    price = db.Column(db.Integer)
-    image = db.Column(db.String(255))
-    discountAmount = db.Column(db.Integer)
-    
-    def __repr__(self) -> str:
-        return f'{self.name} - {self.price}'
-
-    def serialize(self) -> dict:
-        return {
-            'id': self.id,
-            'name': self.name,
-            'price': self.price,
-            'image': self.image,
-            'discountImage': self.discountAmount,
-        }
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/ShopVista'
+mongo = PyMongo(app)
 
 
-class Rating(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    value = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('user.id'), nullable=False)
-    product_id = db.Column(db.Integer, ForeignKey('product.id'), nullable=False)
-
-    user = db.relationship('User', backref='ratings')
-    product = db.relationship('Product', backref='ratings')
-
-    def __repr__(self) -> str:
-        return f'{self.name} - {self.price}'
-
-    def serialize(self) -> dict:
-        return {
-            'id': self.id,
-            'value': self.value,
-            'user': self.user.serialize(),
-            'product': self.product.serialize(),
-        }
-        
-
-
-with app.app_context():
-    print('with app.app_context():')
-    db.create_all()
-    
-    
 # serializer
-def serialize(objects) -> list:
-    return [obj.serialize() for obj in objects]
+def serializer(documents, many=False):
+    if many:
+        df = pd.DataFrame(list(documents))
+        if '_id' in df.columns:
+            df['_id'] = df['_id'].astype(str)
+        # df.fillna(value=None, inplace=True)
+        serialized_documents = df.to_dict(orient='records')
+        return serialized_documents
+    serialized_document = dict(documents)
+    serialized_document['_id'] = str(serialized_document['_id'])
+    return serialized_document
 
 
-# routes
+# Routes
 @app.route("/check/", methods=["POST"])
 @jwt_required()
 def index():
     current_user = get_jwt_identity()
     return jsonify({'success': True, 'user': current_user})
 
-
 @app.route("/sign_in/", methods=["POST"])
 def sign_in():
-    user = request.json.get("user")
-    if not user:
+    users = mongo.db.users
+    user_data = request.json.get("user")
+    if not user_data:
         return jsonify({'success': False, 'msg': "Please provide both username and password"})
     
-    username = user.get('username')
-    password = user.get('password')
+    username = user_data.get('username')
+    password = user_data.get('password')
     
-    user = User.query.filter_by(username=username, password=password).first()
-    print(user)
+    user = users.find_one({'username': username, 'password': password})
     if not user:
-        return jsonify({'success': True, 'msg': "User not found!"})
+        return jsonify({'success': False, 'msg': "User not found!"})
     
     access_token = create_access_token(identity=username)
 
     return jsonify({'success': True, 'msg': "sign in successful", 'access_token': access_token})
 
-
 @app.route("/sign_up/", methods=["POST"])
 def sign_up():
-    user = request.json.get('user')
-    if not user:
+    users = mongo.db.users
+    user_data = request.json.get('user')
+    if not user_data:
         return jsonify({"success": False, 'msg': "Please enter all details"})
     
-    user_exists = User.query.filter_by(username=user.get('username')).first()
+    user_exists = users.find_one({'username': user_data.get('username')})
     if user_exists:
-        return jsonify({"success": False, 'msg': "User already exists with same username/email"})
+        return jsonify({"success": False, 'msg': "User already exists with same username"})
     
-    user = User(**user)
-    db.session.add(user)
-    db.session.commit()
+    users.insert_one(user_data)
     
     return jsonify({'success': True, 'msg': "user created"})
 
-
 @app.route("/products/", methods=["GET", "POST"])
-def get_all_products():
-    try:
-        print(request.method)
-        if request.method == "POST": 
-            product = request.json.get('product')
-            p = request.json
-            if not product:
-                return jsonify({"success": False, 'msg': "Please enter all details"})
-            print('product', product)
-            new_product = Product(**product)
-            db.session.add(new_product)
-            db.session.commit()
-            return jsonify({'success': True, 'msg': "product created"})
-        products = serialize(Product.query.filter().all())
-        print('prododo', products)
-        return jsonify({'success': True, 'msg': "products!", 'products': products})
-    except Exception as e:
-        print('err', str(e))
-        return jsonify({'success': False, 'msg': "no products!", 
-                        # 'products': products
-                        })
+def products():
+    products = mongo.db.products
+    if request.method == "POST":
+        product_data = request.json.get('product')
+        if not product_data:
+            return jsonify({"success": False, 'msg': "Please enter all details"})
+        products.insert_one(product_data)
+        return jsonify({'success': True, 'msg': "product created"})
+
+    result = products.find({})
+    df = pd.DataFrame(list(result))
+    if '_id' in df.columns:
+        df['_id'] = df['_id'].astype(str)
+    # df.fillna(value=None, inplace=True)
+    serialized_documents = df.to_dict(orient='records')
+    # return serialized_documents
+    print('resu', serialized_documents)
+    return jsonify({'success': True, 'msg': "products!", 'products': serialized_documents
+        # serializer(result, many=True)
+        })
 
 @app.route("/product/<id>", methods=["GET"])
 def get_product(id):
-    print('id', id)
     if not id:
         return jsonify({'success': False, 'msg': 'Please provide id'})
-    
-    product = Product.query.filter_by(id=id).first()
+
+    products = mongo.db.products
+    product = products.find_one({'_id': ObjectId(id)})
     if not product:
         return jsonify({"success": False, 'msg': "Product not found"})
+
+    return jsonify({'success': True, 'msg': "product!", 'product': serializer(product)})
+
+@app.route("/cart", methods=["GET"])
+def get_cart():
+    user_id = request.json.get("user_id")
     
-    return jsonify({'success': True, 'msg': "product!", 'product': product})
+    if not user_id:
+        return jsonify({'success': False, 'msg': 'Please login'})
+
+    users = mongo.db.users
+    user = users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({"success": False, 'msg': "User not found"})
+    
+    carts = mongo.db.cart
+    if user_id:
+        user_cart = carts.find_one({
+            "user": user_id,
+        })
+    else:
+        user_cart = dict()
+        print('inserting...')
+        # carts.insert_one({
+        #     "user": user_id,
+        #     "cart_items": [],
+        # })
+    
+    return jsonify({'success': True, 'msg': "product!", 'product': serializer(user_cart)})
+
+@app.route("/add_to_cart/", methods=["POST"])
+def add_to_cart():
+    print(request.json)
+    user_id = request.json.get("user_id")
+    product_id = request.json.get("product_id")
+    if not user_id:
+        return jsonify({'success': False, 'msg': 'Please login'})
+
+    if not product_id:
+        return jsonify({'success': False, 'msg': 'Please provide product_id'})
+
+    users = mongo.db.users
+    user = users.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({"success": False, 'msg': "User not found"})
+    
+    carts = mongo.db.cart
+    existing_user_cart = carts.find_one({"user": user_id})
+    # if existing_user_cart:
+    #     carts.update_one(
+    #         {"user": user_id},
+    #         {"$push": {"cart_items": product_id}}
+    #     )
+    # else:
+    #     carts.insert_one({
+    #         "user": user_id,
+    #         "cart_items": [product_id],
+    #     })
+
+    # Retrieve the updated cart after updating/inserting
+    updated_user_cart = carts.find_one({"user": user_id})
+    # print('list(updated_user_cart)', list(updated_user_cart))
+    df = pd.DataFrame(updated_user_cart)
+    if '_id' in df.columns:
+        df['_id'] = df['_id'].astype(str)
+    pri = df['cart_items'].apply(lambda x: get_cart_items(x))
+    print(pri)
+    # df.fillna(value=None, inplace=True)
+    serialized_documents = df.to_dict(orient='records')
+    return jsonify({'success': True, 'msg': "Product added to cart!", 'cart': serializer(updated_user_cart)})
 
 
+def get_cart_items(x):
+    print('x',x, mongo.db.products.find_one({'_id': x}))
+    return mongo.db.products.find_one({'_id': x})
+    
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
-    

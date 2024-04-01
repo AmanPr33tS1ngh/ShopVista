@@ -33,7 +33,6 @@ export default function Home() {
     const endpoint = `${host_port}/products/`;
     axios.get(endpoint).then((res) => {
       const responseData = res.data;
-      console.log("res", responseData);
       setProducts(responseData.products);
     });
   };
@@ -41,13 +40,19 @@ export default function Home() {
   useEffect(() => {
     getAllProducts();
   }, []);
+  const addToCart = (product) => {
+    console.log("product", product);
+    axios.post(`${host_port}/add_to_cart/`, {product_id: product._id, user_id: '6602fce3e27dd94993f1fb41'}).then((res)=>{
+      const responseData = res.data;
+      console.log('addToCart response', responseData);
+    })
+  };
 
   return (
     <main className="grid grid-cols-3 gap-3 gap-y-8 items-center justify-between p-5">
-      {console.log("prooododod", products)}
-      {products.map((product) => (
-        <Product {...product} />
-      ))}
+      {products?.map((product) => {
+        return <Product product={...product} addToCart={addToCart} />;
+      })}
     </main>
   );
 }

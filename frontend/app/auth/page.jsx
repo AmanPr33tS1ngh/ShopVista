@@ -12,7 +12,6 @@ const SignIn = () => {
   const selector = useSelector((state) => state);
 
   const router = useRouter();
-  console.log("selectorrrrrrr", selector);
   const dispatch = useDispatch();
   const [userCredetials, setUserCredetials] = useState({
     username: "",
