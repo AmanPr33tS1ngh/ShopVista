@@ -83,6 +83,26 @@ def update_profile():
     return jsonify({'success': True, 'msg': "Data updated successfully"})
 
 
+@app.route("/profile/", methods=["POST"])
+def get_profile():
+    users = mongo.db.users
+    username = request.json.get('username')
+    user_id = request.json.get('user_id')
+
+    if not username:
+        return jsonify({"success": False, "msg": "Please provide username"})
+
+    user = users.filter_one({"username": username})
+    if not user:
+        return jsonify({"success": False, 'msg': "User not found"})
+
+    orders = mongo.db.orders
+    user_orders = orders.find_one({"user_id": user_id}) or list()
+
+    return jsonify({'success': True, 'msg': "User", 'user': serializer(user),
+                    'orders': serializer(user_orders, many=True)})
+
+
 @app.route("/products/", methods=["GET", "POST"])
 def get_products():
     products = mongo.db.products
