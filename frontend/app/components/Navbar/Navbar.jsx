@@ -16,21 +16,6 @@ const Navbar = () => {
                   Home
                 </Link>
               </li>
-              <li>
-                <Link className="hover:text-gray-200" href="">
-                  Category
-                </Link>
-              </li>
-              <li>
-                <Link className="hover:text-gray-200" href="/">
-                  Collections
-                </Link>
-              </li>
-              <li>
-                <Link className="hover:text-gray-200" href="">
-                  Contact Us
-                </Link>
-              </li>
             </ul>
             <div className="hidden xl:flex items-center space-x-5">
               <Link
@@ -56,7 +41,10 @@ const Navbar = () => {
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
                 </span>
               </Link>
-              <Link className="flex items-center hover:text-gray-200" href="/">
+              <Link
+                className="flex items-center hover:text-gray-200"
+                href="/profile"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 hover:text-gray-200"
