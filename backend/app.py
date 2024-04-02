@@ -101,7 +101,7 @@ def get_product(id):
 
     return jsonify({'success': True, 'msg': "product!", 'product': serializer(product)})
 
-@app.route("/cart", methods=["GET"])
+@app.route("/cart/", methods=["GET", "POST"])
 def get_cart():
     user_id = request.json.get("user_id")
     
@@ -113,20 +113,30 @@ def get_cart():
     if not user:
         return jsonify({"success": False, 'msg': "User not found"})
     
-    carts = mongo.db.cart
-    if user_id:
-        user_cart = carts.find_one({
-            "user": user_id,
-        })
-    else:
+    carts = mongo.db.carts
+    user_cart = carts.find_one({"user": user_id})
+    if not user_cart:
         user_cart = dict()
         print('inserting...')
-        # carts.insert_one({
-        #     "user": user_id,
-        #     "cart_items": [],
-        # })
+        user_cart = carts.insert_one({
+            "user": user_id,
+            "cart_items": [],
+        })
     
-    return jsonify({'success': True, 'msg': "product!", 'product': serializer(user_cart)})
+    cart_items = user_cart.get("cart_items", [])
+    df = pd.DataFrame(cart_items, columns=['_id'])
+    cart_items_series = df['_id'].apply(lambda x: get_cart_items({'_id': ObjectId(x)})).tolist()
+    cart_items = add_count_and_drop_duplicates(cart_items_series)
+    print('cart_items', cart_items)
+    return jsonify({'success': True, 'msg': "product!", 'cart_items': cart_items})
+
+
+def add_count_and_drop_duplicates(cart_items_series):
+    df = pd.DataFrame(cart_items_series)
+    df['count'] = df.groupby('_id')['_id'].transform('size')
+    df.drop_duplicates(subset='_id', keep='first', inplace=True)
+    result = df.to_dict('records')
+    return result
 
 @app.route("/add_to_cart/", methods=["POST"])
 def add_to_cart():
@@ -144,35 +154,24 @@ def add_to_cart():
     if not user:
         return jsonify({"success": False, 'msg': "User not found"})
     
-    carts = mongo.db.cart
+    carts = mongo.db.carts
     existing_user_cart = carts.find_one({"user": user_id})
-    # if existing_user_cart:
-    #     carts.update_one(
-    #         {"user": user_id},
-    #         {"$push": {"cart_items": product_id}}
-    #     )
-    # else:
-    #     carts.insert_one({
-    #         "user": user_id,
-    #         "cart_items": [product_id],
-    #     })
+    if existing_user_cart:
+        carts.update_one(
+            {"user": user_id},
+            {"$push": {"cart_items": product_id}}
+        )
+    else:
+        carts.insert_one({
+            "user": user_id,
+            "cart_items": [product_id],
+        })
 
-    # Retrieve the updated cart after updating/inserting
-    updated_user_cart = carts.find_one({"user": user_id})
-    # print('list(updated_user_cart)', list(updated_user_cart))
-    df = pd.DataFrame(updated_user_cart)
-    if '_id' in df.columns:
-        df['_id'] = df['_id'].astype(str)
-    pri = df['cart_items'].apply(lambda x: get_cart_items(x))
-    print(pri)
-    # df.fillna(value=None, inplace=True)
-    serialized_documents = df.to_dict(orient='records')
-    return jsonify({'success': True, 'msg': "Product added to cart!", 'cart': serializer(updated_user_cart)})
+    return jsonify({'success': True, 'msg': "Product added to cart!"})
 
 
-def get_cart_items(x):
-    print('x',x, mongo.db.products.find_one({'_id': x}))
-    return mongo.db.products.find_one({'_id': x})
+def get_cart_items(query):
+    return serializer(mongo.db.products.find_one(query))
     
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
