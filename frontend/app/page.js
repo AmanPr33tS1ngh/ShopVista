@@ -31,7 +31,7 @@ export default function Home() {
 
   const getAllProducts = () => {
     const endpoint = `${host_port}/products/`;
-    axios.get(endpoint).then((res) => {
+    axios.post(endpoint).then((res) => {
       const responseData = res.data;
       setProducts(responseData.products);
     });

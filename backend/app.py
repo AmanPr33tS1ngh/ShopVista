@@ -113,22 +113,9 @@ def get_profile():
                     'orders': serializer(user_orders, many=True)})
 
 
-@app.route("/products/", methods=["GET", "POST"])
+@app.route("/products/", methods=["POST"])
 def get_products():
     products = mongo.db.products
-    user_id = request.json.get('user_id')
-    if request.method == "POST":
-        users = mongo.db.users
-        admin = users.find_one({'user_id': user_id, 'is_admin': True})
-        if not admin:
-            return jsonify({"success": False, "msg": "You are not authorised to add products"})
-
-        product_data = request.json.get('product')
-        if not product_data:
-            return jsonify({"success": False, 'msg': "Please enter all details"})
-
-        products.insert_one(product_data)
-        return jsonify({'success': True, 'msg': "product created"})
 
     result = products.find({})
     df = pd.DataFrame(list(result))
@@ -140,6 +127,22 @@ def get_products():
     return jsonify({'success': True, 'msg': "products!", 'products': serialized_documents
         # serializer(result, many=True)
         })
+
+@app.route("/add_product/", methods=["POST"])
+def add_product():
+    user_id = request.json.get('user_id')
+    users = mongo.db.users
+    admin = users.find_one({'user_id': user_id, 'is_admin': True})
+    if not admin:
+        return jsonify({"success": False, "msg": "You are not authorised to add products"})
+
+    product_data = request.json.get('product')
+    if not product_data:
+        return jsonify({"success": False, 'msg': "Please enter all details"})
+
+    products.insert_one(product_data)
+    return jsonify({'success': True, 'msg': "product created"})
+
 
 @app.route("/product/<id>", methods=["GET"])
 def get_product(id):
@@ -269,8 +272,23 @@ def get_razorpay_offer():
     payment = client.order.create(data=data)
     order_id = payment.get("id")
     return jsonify({"success": True, "msg": "Got order id", 'order_id': order_id, 'amount': amount, 'RAZORPAY_KEY': RZP_KEY})
-    
-    
+
+
+@app.route('/purchase_api/', methods=["POST"])
+def purchase_api():
+    pid = request.json.get("razorpayPaymentId")
+    order_id = request.json.get("razorpayOrderId")
+    sign = request.json.get("razorpaySignature")
+    final = client.utility.verify_payment_signature({
+        'razorpay_order_id': order_id,
+        'razorpay_payment_id': pid,
+        'razorpay_signature': sign,
+    })
+    if final:
+        return jsonify({'success': True, 'msg': "Item purchased successfully!"})
+    return jsonify({'success': True, 'msg': "There was an issue while purchasing the item"})
+
+
 def get_cart_items(query):
     return serializer(mongo.db.products.find_one(query))
 

@@ -2,8 +2,10 @@
 import { host_port } from "@/env";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Cart = () => {
+  const router = useRouter();
   const [cartItems, setCartItems] = useState([]);
   useEffect(() => {
     getUserCart();
@@ -54,9 +56,11 @@ const Cart = () => {
           description: "Payment for items",
           image: "https://manuarora.in/logo.png",
           handler: function (response) {
-            alert(response.razorpay_payment_id);
-            alert(response.razorpay_order_id);
-            alert(response.razorpay_signature);
+            purchaseApi(
+              response.razorpay_payment_id,
+              response.razorpay_order_id,
+              response.razorpay_signature,
+            );
           },
           prefill: {
             name: "superuser",
@@ -69,7 +73,18 @@ const Cart = () => {
         paymentObject.open();
       });
   };
-
+  const purchaseApi = (razorpayPaymentId,
+              razorpayOrderId,
+              razorpaySignature,)=>{
+    axios.post(`${host_port}/purchase_api/`,
+        {razorpaySignature: razorpaySignature, razorpayOrderId: razorpayOrderId, razorpayPaymentId: razorpayPaymentId})
+        .then((res)=>{
+      const responseData = res.data;
+      if (responseData.success) {
+        router.push("/profile/");
+      }
+    })
+  }
   const removeItemFromCart = () => {};
   const changeItemInCart = () => {};
   return (
