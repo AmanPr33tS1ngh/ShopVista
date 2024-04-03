@@ -8,6 +8,21 @@ const Cart = () => {
   useEffect(() => {
     getUserCart();
   }, []);
+  const initializeRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+
+      document.body.appendChild(script);
+    });
+  };
 
   const getUserCart = () => {
     axios
@@ -15,6 +30,43 @@ const Cart = () => {
       .then((res) => {
         const responseData = res.data;
         setCartItems(responseData.cart_items);
+      });
+  };
+
+  const makePayment = async () => {
+    const res = await initializeRazorpay();
+
+    if (!res) {
+      alert("Razorpay SDK Failed to load");
+      return;
+    }
+
+    axios
+      .post(`${host_port}/get_razorpay_offer/`, { amount: 1000 })
+      .then((res) => {
+        const responseData = res.data;
+        var options = {
+          key: responseData.RAZORPAY_KEY, // Enter the Key ID generated from the Dashboard
+          name: "Shop Vista pvt ltd",
+          currency: "INR",
+          amount: responseData.amount,
+          order_id: responseData.order_id,
+          description: "Payment for items",
+          image: "https://manuarora.in/logo.png",
+          handler: function (response) {
+            alert(response.razorpay_payment_id);
+            alert(response.razorpay_order_id);
+            alert(response.razorpay_signature);
+          },
+          prefill: {
+            name: "superuser",
+            email: "superuser@gmail.com",
+            contact: "9999999999",
+          },
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
       });
   };
 
@@ -108,7 +160,10 @@ const Cart = () => {
               <span>Total cost</span>
               <span>$600</span>
             </div>
-            <button className="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full">
+            <button
+              onClick={makePayment}
+              className="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full"
+            >
               Checkout
             </button>
           </div>

@@ -4,6 +4,11 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_pymongo import PyMongo
 import pandas as pd
 from bson import ObjectId
+import razorpay
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -11,6 +16,11 @@ app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key' #os.urandom(24)
 jwt = JWTManager(app)
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/ShopVista'
 mongo = PyMongo(app)
+
+RZP_KEY = os.environ.get('RZP_TEST')
+RZP_SECRET_KEY = os.environ.get('RZP_SECRET_KEY')
+
+client = razorpay.Client(auth=(RZP_KEY, RZP_SECRET_KEY))
 
 # serializer
 def serializer(documents, many=False):
@@ -92,7 +102,7 @@ def get_profile():
     if not username:
         return jsonify({"success": False, "msg": "Please provide username"})
 
-    user = users.filter_one({"username": username})
+    user = users.find_one({"username": username})
     if not user:
         return jsonify({"success": False, 'msg': "User not found"})
 
@@ -252,7 +262,15 @@ def change_cart():
         return jsonify({'success': False, 'msg': "Wrong change type!"})
     return jsonify({'success': True, 'msg': "Product added to cart!"})
 
-
+@app.route("/get_razorpay_offer/", methods=['POST'])
+def get_razorpay_offer():
+    amount=request.json.get("amount")
+    data = { "amount": amount, "currency": "INR", "receipt": "order_rcptid_" + str(os.urandom(4)) }
+    payment = client.order.create(data=data)
+    order_id = payment.get("id")
+    return jsonify({"success": True, "msg": "Got order id", 'order_id': order_id, 'amount': amount, 'RAZORPAY_KEY': RZP_KEY})
+    
+    
 def get_cart_items(query):
     return serializer(mongo.db.products.find_one(query))
 

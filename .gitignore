@@ -21,3 +21,5 @@ pyvenv.cfg
 .env
 env
 var/
+backend/env
+backend/.env
