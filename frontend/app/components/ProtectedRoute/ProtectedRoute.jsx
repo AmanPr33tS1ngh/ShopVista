@@ -1,6 +1,5 @@
 "use client";
 import { useSelector } from "react-redux";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ProtectedRoute = ({ children }) => {

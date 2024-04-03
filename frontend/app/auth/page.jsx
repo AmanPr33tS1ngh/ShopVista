@@ -4,22 +4,20 @@ import axios from "axios";
 import Head from "next/head";
 import React, { useState } from "react";
 import Link from "next/link";
-import { AUTHENTICATE } from "../redux/actionTypes/actionTypes";
-import { useDispatch, useSelector } from "react-redux";
+import { AUTHENTICATE } from "@/redux/actionTypes/actionTypes";
+import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 
 const SignIn = () => {
-  const selector = useSelector((state) => state);
-
   const router = useRouter();
   const dispatch = useDispatch();
-  const [userCredetials, setUserCredetials] = useState({
+  const [userCredentials, setUserCredentials] = useState({
     username: "",
     password: "",
   });
   const changeUserCreds = (e) => {
-    setUserCredetials({
-      ...userCredetials,
+    setUserCredentials({
+      ...userCredentials,
       [e.target.name]: e.target.value,
     });
   };
@@ -27,7 +25,7 @@ const SignIn = () => {
   const signIn = (e) => {
     e.preventDefault();
     const endpoint = "http://localhost:8000/sign_in/";
-    axios.post(endpoint, { user: userCredetials }).then((res) => {
+    axios.post(endpoint, { user: userCredentials }).then((res) => {
       const responseData = res.data;
       if (responseData.success) {
         dispatch({
@@ -63,7 +61,7 @@ const SignIn = () => {
                 type="text"
                 id="username"
                 name="username"
-                value={userCredetials.username}
+                value={userCredentials.username}
                 onChange={changeUserCreds}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter username..."
@@ -83,7 +81,7 @@ const SignIn = () => {
               type="password"
               id="password"
               name="password"
-              value={userCredetials.password}
+              value={userCredentials.password}
               onChange={changeUserCreds}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="•••••••••"

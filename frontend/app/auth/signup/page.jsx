@@ -4,11 +4,9 @@ import axios from "axios";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 
 const SignIn = () => {
-  const dispatch = useDispatch();
-  const [userCredetials, setUserCredetials] = useState({
+  const [userCredentials, setUserCredentials] = useState({
     username: "",
     password: "",
     confirmPassword: "",
@@ -19,8 +17,8 @@ const SignIn = () => {
   });
 
   const changeUserCreds = (e) => {
-    setUserCredetials({
-      ...userCredetials,
+    setUserCredentials({
+      ...userCredentials,
       [e.target.name]: e.target.value,
     });
   };
@@ -28,7 +26,7 @@ const SignIn = () => {
   const signIn = (e) => {
     e.preventDefault();
     const endpoint = "http://localhost:8000/sign_up/";
-    axios.post(endpoint, { user: userCredetials }).then((res) => {
+    axios.post(endpoint, { user: userCredentials }).then((res) => {
       const responseData = res.data;
       // if (responseData.success) dispatch();
       console.log("signup res", responseData);
@@ -54,7 +52,7 @@ const SignIn = () => {
                 type="text"
                 id="username"
                 name="username"
-                value={userCredetials.username}
+                value={userCredentials.username}
                 onChange={changeUserCreds}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter username..."
@@ -75,7 +73,7 @@ const SignIn = () => {
                 type="text"
                 id="firstName"
                 name="firstName"
-                value={userCredetials.firstName}
+                value={userCredentials.firstName}
                 onChange={changeUserCreds}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter first name..."
@@ -93,7 +91,7 @@ const SignIn = () => {
                 type="text"
                 id="lastName"
                 name="lastName"
-                value={userCredetials.lastName}
+                value={userCredentials.lastName}
                 onChange={changeUserCreds}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Enter last name..."
@@ -112,7 +110,7 @@ const SignIn = () => {
               <input
                 type="text"
                 id="phone"
-                value={userCredetials.phone}
+                value={userCredentials.phone}
                 name="phone"
                 onChange={changeUserCreds}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -133,7 +131,7 @@ const SignIn = () => {
               type="email"
               id="email"
               name="email"
-              value={userCredetials.email}
+              value={userCredentials.email}
               onChange={changeUserCreds}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="john.doe@company.com"
@@ -151,7 +149,7 @@ const SignIn = () => {
               type="password"
               id="password"
               name="password"
-              value={userCredetials.password}
+              value={userCredentials.password}
               onChange={changeUserCreds}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="•••••••••"
@@ -169,7 +167,7 @@ const SignIn = () => {
               type="password"
               id="confirmPassword"
               name="confirmPassword"
-              value={userCredetials.confirmPassword}
+              value={userCredentials.confirmPassword}
               onChange={changeUserCreds}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="•••••••••"
